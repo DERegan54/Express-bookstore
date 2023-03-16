@@ -19,7 +19,8 @@ router.get("/", async function (req, res, next) {
   }
 });
 
-/** GET /[id]  => {book: book} */
+/** GET /[isbn]  => {book: book} */
+
 
 router.get("/:isbn", async function (req, res, next) {
   try {
@@ -39,9 +40,9 @@ router.post("/", async function (req, res, next) {
       let listOfErrors = result.errors.map(error => error.stack);
       let error = new ExpressError(listOfErrors, 400);
       return next(error);
-    }
+    };
       const book = await Book.create(req.body);
-      return res.status(201).json(book);
+      return res.status(201).json({book});
   } catch (error) {
     return next(error);
   }
@@ -50,14 +51,18 @@ router.post("/", async function (req, res, next) {
 /** PUT /[isbn]   bookData => {book: updatedBook}  */
 
 router.put("/:isbn", async function (req, res, next) { 
+  try {  
     const result = jsonschema.validate(req.body, bookSchemaUpdate);
-    if(!result.valid) {
+    if(!result.valid) { 
       let listOfErrors = result.errors.map(error => error.stack);
       let error = new ExpressError(listOfErrors, 400);
       return next(error);
     }
     const book = await Book.update(req.params.isbn, req.body);
-    return res.json({ book });
+    return res.json({book});
+  } catch(error) {
+    return next(error);
+  }
 });
 
 /** DELETE /[isbn]   => {message: "Book deleted"} */
